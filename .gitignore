@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Local credentials and machine-specific configuration
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Input documents and generated pipeline artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/tmp/
+output/*
+!output/.gitkeep
+server_logs/*
+!server_logs/.gitkeep

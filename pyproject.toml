@@ -1,0 +1,32 @@
+[project]
+name = "enterprise-doc-mcp-kb"
+version = "0.1.0"
+description = "Metadata-rich PDF/PPTX extraction, table-aware retrieval, and MCP knowledge-base demo."
+requires-python = ">=3.11"
+dependencies = [
+  "fastmcp>=2.2.0",
+  "pdfplumber>=0.11.0",
+  "pymupdf>=1.24.0",
+  "python-pptx>=1.0.2",
+  "reportlab>=4.2.0",
+  "matplotlib>=3.9.0",
+  "scikit-learn>=1.5.0",
+  "python-dotenv>=1.0.0"
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["pipeline", "mcp_server", "client"]
+exclude = ["data", "output", "server_logs", "tests"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
