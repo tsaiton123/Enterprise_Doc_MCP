@@ -305,6 +305,61 @@ Then ask:
 Use enterprise-doc-kb to answer: What was APAC revenue growth?
 ```
 
+### Judge Query Catalog
+
+The remote server is a fixed demonstration knowledge base. Judges can use the
+following questions to exercise retrieval, table handling, citations, slide
+content, speaker-note extraction, and metadata lookup.
+
+Questions about `enterprise_report.pdf`:
+
+```text
+What was APAC revenue growth?
+What were APAC revenue and growth?
+What were EMEA revenue and growth?
+Which region had the highest reported revenue growth?
+What does the quarterly revenue table say about North America?
+What does the quarterly revenue table say about LATAM?
+Find the regional revenue table and cite its source page.
+Which segment had elevated customer churn?
+What does the report say about enterprise renewal rates?
+What caused customer churn in self-service accounts?
+What improvements did enterprise accounts cite?
+What does the report say about delayed security reviews, integration capacity, and data residency requirements?
+What mitigations involve legal intake, integration templates, and regional processing controls?
+What does the report say about procurement delays?
+Identify the OCR-like noisy text in the report.
+```
+
+Questions about `strategy_deck.pptx`:
+
+```text
+What priorities are listed in the strategy overview slide?
+What risks and mitigations appear in the strategy deck?
+What does the slide deck say about poor OCR quality?
+What does the MCP Architecture slide say about the LLM client, MCP server, and vector chunks?
+How does the slide describe the LLM client connection to the MCP server?
+What does the slide say about resources exposing outlines and tables?
+What is the target latency in the rollout metrics slide?
+How many source-grounded evaluation questions are planned?
+What does the deck require for the customer churn query?
+Summarize the speaker notes about traceability.
+What architecture diagram text appears in the speaker notes?
+```
+
+Cross-document and source-verification questions:
+
+```text
+List the indexed documents.
+Which document mentions customer churn?
+Summarize customer churn findings and cite the source page or slide.
+Compare data residency requirements in the report with poor OCR quality in the slide deck, with citations.
+Give the source page for the APAC revenue answer.
+Give the source slide for the MCP architecture answer.
+Retrieve the extracted table containing APAC revenue.
+Show the chunks retrieved for data residency requirements and include their metadata.
+```
+
 ## 9. MCP Tools And Resources
 
 Tools:
@@ -327,14 +382,6 @@ resource://documents/{doc_id}/outline
 resource://documents/{source_file}/pages/{page}
 resource://chunks/{chunk_id}
 resource://tables/{table_id}
-```
-
-Example requests through an MCP client:
-
-```text
-Use enterprise-doc-kb to summarize the technical approach with citations.
-Use enterprise-doc-kb to retrieve all chunks on page 3.
-Use enterprise-doc-kb to find the table discussing runtime.
 ```
 
 ## 10. Test
