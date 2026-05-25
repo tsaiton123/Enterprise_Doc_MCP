@@ -259,69 +259,23 @@ MCP_TRANSPORT=http MCP_HOST=127.0.0.1 MCP_PORT=8000 \
 
 The Streamable HTTP MCP endpoint is `http://127.0.0.1:8000/mcp`.
 
-## 8. Deploy To A Public URL
+## 8. Remote MCP Evaluation
 
-The repository includes a root `Dockerfile` for cloud deployment. Its startup
-behavior differs intentionally from local development:
-
-- local ingestion processes only documents manually added to `data/raw/`
-- the public container starts with `GENERATE_DEMO_DATA=true`
-- if the container has no documents, it generates synthetic report/deck files,
-  indexes them, and starts the HTTP MCP server
-- no private local document or `.env` file is included in the Docker build
-  context, because `.dockerignore` mirrors the sensitive artifact exclusions
-
-This makes a public demonstration usable without publishing personal or
-confidential source files.
-
-### Recommended Demo Deployment: Render
-
-For a public demonstration URL without provisioning a server, deploy the
-included `render.yaml` Blueprint on Render:
-
-1. In Render, choose **New** > **Blueprint** and connect this GitHub repository.
-2. Select branch `main`; Render reads `render.yaml` and builds the root
-   `Dockerfile`.
-3. Deploy the `enterprise-doc-mcp` free web service.
-4. Once it is live, use the generated endpoint.
-
-The submitted deployment is live at:
+The submitted remote MCP server is live at:
 
 ```text
 https://enterprise-doc-mcp.onrender.com/mcp
 ```
 
-The free Render service is appropriate for a demonstration, not production. It
-can spin down after inactivity and has an ephemeral filesystem; after a restart
-the container regenerates and indexes the same synthetic documents.
-
-### Zeabur Deployment Steps
-
-Zeabur also supports this root `Dockerfile`, but its shared-cluster runtime was
-deprecated for new projects in 2026. A new Zeabur deployment now requires an
-existing Server, a purchased Server, or a bound external Server before a
-project can host this MCP service.
-
-1. In Zeabur, create a project backed by a Server and choose
-   **Deploy New Service** > **GitHub**.
-2. Select `tsaiton123/Enterprise_Doc_MCP`.
-3. Deploy from branch `main`. Zeabur detects the root `Dockerfile`.
-4. Confirm the service exposes its `web` port. The container reads Zeabur's
-   injected `PORT` and binds to `0.0.0.0`.
-5. Open the service **Domains** tab and add a public Zeabur domain.
-6. Use the resulting endpoint with the MCP path appended:
-
-```text
-https://<your-service-domain>/mcp
-```
-
-The Dockerfile sets `GENERATE_DEMO_DATA=true` by default. No `OPENAI_API_KEY`
-is needed in the public demo because equation LLM transcription is a local,
-optional enrichment workflow, not a runtime dependency for serving MCP tools.
+The hosted knowledge base indexes only self-created demonstration inputs:
+`enterprise_report.pdf` and `strategy_deck.pptx`. It does not receive or
+process a reviewer's local documents. The service may take longer to answer its
+first request after an idle period because it is hosted on a free web-service
+tier.
 
 ### Verify The Public MCP Endpoint
 
-Verify the submitted public Render deployment:
+From a local clone with dependencies installed:
 
 ```bash
 .venv/bin/python client/test_remote.py \
@@ -338,29 +292,18 @@ What was APAC revenue growth?
 Expected grounded content: APAC revenue of `$2.1M` with `12%` growth, cited
 from `enterprise_report.pdf`.
 
-For Claude Code, register the remote HTTP MCP endpoint:
+To evaluate through Claude Code:
 
 ```bash
 claude mcp add --transport http enterprise-doc-kb \
   https://enterprise-doc-mcp.onrender.com/mcp
 ```
 
-### Deploying Real Documents
+Then ask:
 
-Do not expose real source documents in the public demo service. For a private
-or authenticated deployment, provision documents through protected storage,
-turn off synthetic generation with `GENERATE_DEMO_DATA=false`, and add
-authentication/TLS policy appropriate for document access before making the
-endpoint reachable by clients.
-
-References:
-
-- [Render Blueprint deployments](https://render.com/docs/infrastructure-as-code/)
-- [Render free web service limits](https://render.com/free)
-- [Zeabur Dockerfile deployments](https://zeabur.com/docs/en-US/deploy/methods/dockerfile)
-- [Zeabur GitHub integration](https://zeabur.com/docs/en-US/deploy/github)
-- [Zeabur shared-cluster deprecation](https://zeabur.com/docs/en-US/dedicated-server/shared-cluster)
-- [FastMCP HTTP deployment](https://gofastmcp.com/v2/deployment/http)
+```text
+Use enterprise-doc-kb to answer: What was APAC revenue growth?
+```
 
 ## 9. MCP Tools And Resources
 
