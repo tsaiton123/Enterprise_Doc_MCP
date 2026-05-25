@@ -13,7 +13,7 @@ tables, broken PDF math glyphs, and verifiable reconstruction.
 | PPTX extraction | `python-pptx` shapes, slide locations, notes | `output/extracted_blocks.json` |
 | Structured chunking | Section-aware blocks, bbox and source metadata | `output/cleaned_chunks.json` |
 | Local retrieval | Persistent `HashingVectorizer` index with metadata lookup | `output/vector_index/` |
-| MCP access | FastMCP tools/resources over stdio or Streamable HTTP | local MCP server |
+| MCP access | FastMCP tools/resources over stdio or Streamable HTTP | local server and public Render endpoint |
 | Math recovery | Geometry detection, optional OCR/LLM transcription, bbox merge | equation JSON and corrected chunks |
 | Extraction audit | Reconstruct chunks at original page positions | reconstructed PDF |
 
@@ -283,10 +283,12 @@ included `render.yaml` Blueprint on Render:
 2. Select branch `main`; Render reads `render.yaml` and builds the root
    `Dockerfile`.
 3. Deploy the `enterprise-doc-mcp` free web service.
-4. Once it is live, use the generated endpoint:
+4. Once it is live, use the generated endpoint.
+
+The submitted deployment is live at:
 
 ```text
-https://<your-service-name>.onrender.com/mcp
+https://enterprise-doc-mcp.onrender.com/mcp
 ```
 
 The free Render service is appropriate for a demonstration, not production. It
@@ -319,11 +321,11 @@ optional enrichment workflow, not a runtime dependency for serving MCP tools.
 
 ### Verify The Public MCP Endpoint
 
-After Zeabur reports a successful deployment and a domain is assigned:
+Verify the submitted public Render deployment:
 
 ```bash
 .venv/bin/python client/test_remote.py \
-  https://<your-service-domain>/mcp
+  https://enterprise-doc-mcp.onrender.com/mcp
 ```
 
 The smoke client lists MCP tools and calls `answer_with_citations` against the
@@ -335,6 +337,13 @@ What was APAC revenue growth?
 
 Expected grounded content: APAC revenue of `$2.1M` with `12%` growth, cited
 from `enterprise_report.pdf`.
+
+For Claude Code, register the remote HTTP MCP endpoint:
+
+```bash
+claude mcp add --transport http enterprise-doc-kb \
+  https://enterprise-doc-mcp.onrender.com/mcp
+```
 
 ### Deploying Real Documents
 
@@ -397,6 +406,25 @@ With at least one local PDF or PPTX in `data/raw/` and a generated index:
 The equation merge regression test specifically verifies that detached
 subscript text is consumed by a merged equation while adjacent prose is
 preserved.
+
+## AI / Agent Workflow
+
+This project was developed through an AI coding-agent workflow using Codex and
+Claude Code for implementation and verification:
+
+- designed the document normalization, metadata-rich chunking, retrieval, and
+  FastMCP tool surface through iterative agent-assisted code changes
+- diagnosed PDF geometry failures by reconstructing extracted chunks at their
+  original bboxes and visually inspecting equation overlays
+- implemented and tested conservative equation-region merging, optional OCR,
+  and optional OpenAI vision transcription for broken mathematical text
+- packaged the MCP server for Streamable HTTP deployment, deployed it to
+  Render, and verified a live `answer_with_citations` call against the public
+  endpoint
+
+The Git history preserves these stages as separate commits: initial pipeline,
+extraction/math documentation, public MCP container deployment, and Render
+Blueprint deployment.
 
 ## Project Structure
 
