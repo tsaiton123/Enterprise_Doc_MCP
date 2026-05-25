@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: enterprise-doc-mcp
+    runtime: docker
+    plan: free
+    region: oregon
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: GENERATE_DEMO_DATA
+        value: "true"

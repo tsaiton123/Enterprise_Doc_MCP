@@ -259,7 +259,7 @@ MCP_TRANSPORT=http MCP_HOST=127.0.0.1 MCP_PORT=8000 \
 
 The Streamable HTTP MCP endpoint is `http://127.0.0.1:8000/mcp`.
 
-## 8. Deploy To A Public URL With Zeabur
+## 8. Deploy To A Public URL
 
 The repository includes a root `Dockerfile` for cloud deployment. Its startup
 behavior differs intentionally from local development:
@@ -274,9 +274,34 @@ behavior differs intentionally from local development:
 This makes a public demonstration usable without publishing personal or
 confidential source files.
 
+### Recommended Demo Deployment: Render
+
+For a public demonstration URL without provisioning a server, deploy the
+included `render.yaml` Blueprint on Render:
+
+1. In Render, choose **New** > **Blueprint** and connect this GitHub repository.
+2. Select branch `main`; Render reads `render.yaml` and builds the root
+   `Dockerfile`.
+3. Deploy the `enterprise-doc-mcp` free web service.
+4. Once it is live, use the generated endpoint:
+
+```text
+https://<your-service-name>.onrender.com/mcp
+```
+
+The free Render service is appropriate for a demonstration, not production. It
+can spin down after inactivity and has an ephemeral filesystem; after a restart
+the container regenerates and indexes the same synthetic documents.
+
 ### Zeabur Deployment Steps
 
-1. In Zeabur, create a project and choose **Deploy New Service** > **GitHub**.
+Zeabur also supports this root `Dockerfile`, but its shared-cluster runtime was
+deprecated for new projects in 2026. A new Zeabur deployment now requires an
+existing Server, a purchased Server, or a bound external Server before a
+project can host this MCP service.
+
+1. In Zeabur, create a project backed by a Server and choose
+   **Deploy New Service** > **GitHub**.
 2. Select `tsaiton123/Enterprise_Doc_MCP`.
 3. Deploy from branch `main`. Zeabur detects the root `Dockerfile`.
 4. Confirm the service exposes its `web` port. The container reads Zeabur's
@@ -321,8 +346,11 @@ endpoint reachable by clients.
 
 References:
 
+- [Render Blueprint deployments](https://render.com/docs/infrastructure-as-code/)
+- [Render free web service limits](https://render.com/free)
 - [Zeabur Dockerfile deployments](https://zeabur.com/docs/en-US/deploy/methods/dockerfile)
 - [Zeabur GitHub integration](https://zeabur.com/docs/en-US/deploy/github)
+- [Zeabur shared-cluster deprecation](https://zeabur.com/docs/en-US/dedicated-server/shared-cluster)
 - [FastMCP HTTP deployment](https://gofastmcp.com/v2/deployment/http)
 
 ## 9. MCP Tools And Resources
@@ -379,6 +407,7 @@ pipeline/                  extraction, chunking, math merging, indexing
 mcp_server/                FastMCP tools and resources
 client/                    diagnostics, OCR/LLM math passes, reconstruction
 deploy/                    public HTTP deployment bootstrap
+render.yaml                free public demo Blueprint configuration
 docs/assets/               non-sensitive README illustrations
 tests/                     retrieval, MCP, and equation-merge tests
 output/                    generated reports/index/PDF reconstructions, ignored
