@@ -224,7 +224,7 @@ extraction pipeline retained content type, reading order, and location.
 | Reconstruction | A cleaned text dump can hide location errors | Blank-page bbox reconstruction plus optional math overlays | Automated visual similarity scoring |
 | Retrieval quality | Local hashed lexical vectors are limited for paraphrases | Traceable baseline with source citations | Add configurable neural embeddings and reranking |
 
-## 7. Run The MCP Server
+## 7. Run The MCP Server Locally
 
 Run extraction before starting MCP, because tools read
 `output/cleaned_chunks.json` and `output/vector_index/`.
@@ -248,19 +248,84 @@ spawn this server over stdio:
 
 Restart the client after changing its MCP configuration.
 
-### Remote/Shared Client: Streamable HTTP
+### Local HTTP Development: Streamable HTTP
 
-Use Streamable HTTP only when another machine or deployed client must connect:
+Use Streamable HTTP locally when developing a remote-client integration:
 
 ```bash
 MCP_TRANSPORT=http MCP_HOST=127.0.0.1 MCP_PORT=8000 \
   .venv/bin/python -m mcp_server.server
 ```
 
-Place authentication and TLS in front of this endpoint before exposing
-document retrieval outside a trusted local environment.
+The Streamable HTTP MCP endpoint is `http://127.0.0.1:8000/mcp`.
 
-## 8. MCP Tools And Resources
+## 8. Deploy To A Public URL With Zeabur
+
+The repository includes a root `Dockerfile` for cloud deployment. Its startup
+behavior differs intentionally from local development:
+
+- local ingestion processes only documents manually added to `data/raw/`
+- the public container starts with `GENERATE_DEMO_DATA=true`
+- if the container has no documents, it generates synthetic report/deck files,
+  indexes them, and starts the HTTP MCP server
+- no private local document or `.env` file is included in the Docker build
+  context, because `.dockerignore` mirrors the sensitive artifact exclusions
+
+This makes a public demonstration usable without publishing personal or
+confidential source files.
+
+### Zeabur Deployment Steps
+
+1. In Zeabur, create a project and choose **Deploy New Service** > **GitHub**.
+2. Select `tsaiton123/Enterprise_Doc_MCP`.
+3. Deploy from branch `main`. Zeabur detects the root `Dockerfile`.
+4. Confirm the service exposes its `web` port. The container reads Zeabur's
+   injected `PORT` and binds to `0.0.0.0`.
+5. Open the service **Domains** tab and add a public Zeabur domain.
+6. Use the resulting endpoint with the MCP path appended:
+
+```text
+https://<your-service-domain>/mcp
+```
+
+The Dockerfile sets `GENERATE_DEMO_DATA=true` by default. No `OPENAI_API_KEY`
+is needed in the public demo because equation LLM transcription is a local,
+optional enrichment workflow, not a runtime dependency for serving MCP tools.
+
+### Verify The Public MCP Endpoint
+
+After Zeabur reports a successful deployment and a domain is assigned:
+
+```bash
+.venv/bin/python client/test_remote.py \
+  https://<your-service-domain>/mcp
+```
+
+The smoke client lists MCP tools and calls `answer_with_citations` against the
+synthetic indexed report. An expected demo question is:
+
+```text
+What was APAC revenue growth?
+```
+
+Expected grounded content: APAC revenue of `$2.1M` with `12%` growth, cited
+from `enterprise_report.pdf`.
+
+### Deploying Real Documents
+
+Do not expose real source documents in the public demo service. For a private
+or authenticated deployment, provision documents through protected storage,
+turn off synthetic generation with `GENERATE_DEMO_DATA=false`, and add
+authentication/TLS policy appropriate for document access before making the
+endpoint reachable by clients.
+
+References:
+
+- [Zeabur Dockerfile deployments](https://zeabur.com/docs/en-US/deploy/methods/dockerfile)
+- [Zeabur GitHub integration](https://zeabur.com/docs/en-US/deploy/github)
+- [FastMCP HTTP deployment](https://gofastmcp.com/v2/deployment/http)
+
+## 9. MCP Tools And Resources
 
 Tools:
 
@@ -292,7 +357,7 @@ Use enterprise-doc-kb to retrieve all chunks on page 3.
 Use enterprise-doc-kb to find the table discussing runtime.
 ```
 
-## 9. Test
+## 10. Test
 
 With at least one local PDF or PPTX in `data/raw/` and a generated index:
 
@@ -313,6 +378,7 @@ data/processed/            generated intermediate JSON, ignored by Git
 pipeline/                  extraction, chunking, math merging, indexing
 mcp_server/                FastMCP tools and resources
 client/                    diagnostics, OCR/LLM math passes, reconstruction
+deploy/                    public HTTP deployment bootstrap
 docs/assets/               non-sensitive README illustrations
 tests/                     retrieval, MCP, and equation-merge tests
 output/                    generated reports/index/PDF reconstructions, ignored

@@ -20,7 +20,7 @@ def generate_pdf(path: Path = RAW_DIR / "enterprise_report.pdf") -> Path:
     def header_footer(canvas, document):
         canvas.saveState()
         canvas.setFont("Helvetica", 9)
-        canvas.drawString(54, 760, "Acme Enterprise Quarterly Operating Report - Confidential")
+        canvas.drawString(54, 760, "Synthetic Enterprise Quarterly Operating Report - Public Demo Data")
         canvas.drawRightString(558, 32, f"Page {document.page}")
         canvas.restoreState()
 

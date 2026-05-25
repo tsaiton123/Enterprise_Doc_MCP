@@ -21,7 +21,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["pipeline", "mcp_server", "client"]
+include = ["pipeline", "mcp_server", "client", "deploy"]
 exclude = ["data", "output", "server_logs", "tests"]
 
 [project.optional-dependencies]

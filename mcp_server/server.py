@@ -80,6 +80,8 @@ def table_resource(table_id: str) -> dict | None:
 if __name__ == "__main__":
     transport = os.getenv("MCP_TRANSPORT", "stdio")
     if transport == "http":
-        mcp.run(transport="streamable-http", host=os.getenv("MCP_HOST", "127.0.0.1"), port=int(os.getenv("MCP_PORT", "8000")))
+        host = os.getenv("MCP_HOST", os.getenv("HOST", "127.0.0.1"))
+        port = int(os.getenv("PORT", os.getenv("MCP_PORT", "8000")))
+        mcp.run(transport="streamable-http", host=host, port=port)
     else:
         mcp.run()
