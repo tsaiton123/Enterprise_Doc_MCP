@@ -38,8 +38,9 @@ class LocalVectorIndex:
 
     def persist(self, path: Path = INDEX_DIR) -> None:
         path.mkdir(parents=True, exist_ok=True)
-        (path / "chunks.json").write_text(json.dumps(self.chunks, indent=2), encoding="utf-8")
-        (path / "index_manifest.json").write_text(
+        _atomic_write(path / "chunks.json", json.dumps(self.chunks, indent=2))
+        _atomic_write(
+            path / "index_manifest.json",
             json.dumps(
                 {
                     "backend": "sklearn.HashingVectorizer",
@@ -48,7 +49,6 @@ class LocalVectorIndex:
                 },
                 indent=2,
             ),
-            encoding="utf-8",
         )
 
 
@@ -61,3 +61,9 @@ def citation_for(chunk: dict[str, Any]) -> str:
 def load_index(path: Path = INDEX_DIR) -> LocalVectorIndex:
     chunks = json.loads((path / "chunks.json").read_text(encoding="utf-8"))
     return LocalVectorIndex(chunks)
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(path)

@@ -52,6 +52,22 @@ def get_table(table_id: str) -> dict | None:
     return kb.get_table(table_id)
 
 
+@mcp.tool
+def ingest_document(path: str) -> dict:
+    """Ingest a local .pdf/.pptx file by path and rebuild the searchable index.
+
+    The file must be reachable on the machine running this server; supply a
+    filesystem path, not upload bytes. Returns ingestion status and counts.
+    """
+    return kb.ingest_document(path)
+
+
+@mcp.tool
+def reindex() -> dict:
+    """Rebuild the index from every document currently in data/raw."""
+    return kb.reindex()
+
+
 @mcp.resource("resource://documents")
 def documents_resource() -> list[dict]:
     return kb.list_documents()
